@@ -25,18 +25,20 @@
 #include <thrift/server/TThreadedServer.h>
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TTransportUtils.h>
+#include <concurrency/ThreadManager.h>
+#include <concurrency/PosixThreadFactory.h>
 
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
 
 #include "../gen-cpp/Calculator.h"
-
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 using namespace apache::thrift::server;
+using namespace ::apache::thrift::concurrency;
 
 using namespace tutorial;
 using namespace shared;
@@ -113,11 +115,11 @@ protected:
 
 int main(int argc, char **argv) {
 
-//  shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
-//  shared_ptr<CalculatorHandler> handler(new CalculatorHandler());
-//  shared_ptr<TProcessor> processor(new CalculatorProcessor(handler));
-//  shared_ptr<TServerTransport> serverTransport(new TServerSocket(9090));
-//  shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
+  shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
+  shared_ptr<CalculatorHandler> handler(new CalculatorHandler());
+  shared_ptr<TProcessor> processor(new CalculatorProcessor(handler));
+  shared_ptr<TServerTransport> serverTransport(new TServerSocket(9090));
+  shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
 //
 //  TSimpleServer server(processor,
 //                       serverTransport,
@@ -125,27 +127,26 @@ int main(int argc, char **argv) {
 //                       protocolFactory);
 //
 
-  /**
-   * Or you could do one of these
 
+  int workerCount = 4; 
   shared_ptr<ThreadManager> threadManager =
     ThreadManager::newSimpleThreadManager(workerCount);
   shared_ptr<PosixThreadFactory> threadFactory =
     shared_ptr<PosixThreadFactory>(new PosixThreadFactory());
   threadManager->threadFactory(threadFactory);
   threadManager->start();
-  TThreadPoolServer server(processor,
-                           serverTransport,
-                           transportFactory,
-                           protocolFactory,
-                           threadManager);
-
+//  TThreadPoolServer server(processor,
+//                           serverTransport,
+//                           transportFactory,
+//                           protocolFactory,
+//                           threadManager);
+//
   TThreadedServer server(processor,
                          serverTransport,
                          transportFactory,
                          protocolFactory);
 
-  */
+  
 
   printf("Starting the server...\n");
   server.serve();
